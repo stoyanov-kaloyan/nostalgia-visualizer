@@ -1,0 +1,14 @@
+[project]
+name = "nostalgia-visualizer"
+version = "0.1.0"
+description = "Offline music visualizer for nostalgic indie/electronic Instagram reel backgrounds."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "imageio>=2.37.3",
+    "imageio-ffmpeg>=0.6.0",
+    "librosa>=0.11.0",
+    "numpy>=2.4.4",
+    "pillow>=12.2.0",
+    "tqdm>=4.67.3",
+]

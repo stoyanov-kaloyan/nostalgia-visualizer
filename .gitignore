@@ -25,13 +25,5 @@ dist/
 .idea/
 .vscode/
 
-# Local media outputs
-renders/*.mp4
-renders/*.video-only.mp4
-
-# Local song files (keep assets/.gitkeep)
-assets/*.mp3
-assets/*.wav
-assets/*.flac
-assets/*.m4a
-assets/*.ogg
+renders/
+assets/

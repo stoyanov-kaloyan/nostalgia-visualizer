@@ -1,0 +1,14 @@
+[audio]
+song_path = "assets/song.mp3"
+sample_rate = 44100
+clip_seconds = 30
+
+[video]
+output_path = "renders/nostalgia-reel.mp4"
+width = 1280
+height = 720
+fps = 30
+
+[style]
+theme = "blackout_glitch"
+seed = 7
