@@ -22,6 +22,10 @@ Output defaults to `renders/output.mp4` in **16:9 (1280x720)**.
 The renderer shows a live frame progress bar while encoding.
 `main.py` is kept as a thin wrapper around the library CLI.
 
+## Sample rendered asset
+
+[![Watch on YouTube](https://img.youtube.com/vi/fVKyR1fd_-g/hqdefault.jpg)](https://www.youtube.com/watch?v=fVKyR1fd_-g)
+
 ## Live window mode (react to current audio)
 
 List available input devices:
