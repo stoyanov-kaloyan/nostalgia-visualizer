@@ -1,0 +1,37 @@
+# Virtual environments
+.venv/
+venv/
+
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Coverage / build artifacts
+.coverage
+.coverage.*
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Editor / OS noise
+.DS_Store
+.idea/
+.vscode/
+
+# Local media outputs
+renders/*.mp4
+renders/*.video-only.mp4
+
+# Local song files (keep assets/.gitkeep)
+assets/*.mp3
+assets/*.wav
+assets/*.flac
+assets/*.m4a
+assets/*.ogg
