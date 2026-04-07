@@ -18,6 +18,9 @@ class VisualizerConfig:
     sample_rate: int = 44_100
     clip_seconds: float = 30.0
     theme: str = "blackout_glitch"
+    effect_names: tuple[str, ...] = ("glitch_bands", "chroma_echo", "scan_fall")
+    swap_every_bars: int = 2
+    beats_per_bar: int = 4
     seed: int = 7
 
 
@@ -75,5 +78,36 @@ def _apply_style_section(config: VisualizerConfig, section: dict[str, Any]) -> N
         return
     if "theme" in section:
         config.theme = str(section["theme"])
+    if "effect_names" in section:
+        config.effect_names = _parse_effect_names(section["effect_names"])
+    elif "effects" in section:
+        config.effect_names = _parse_effect_names(section["effects"])
+    if "swap_every_bars" in section:
+        config.swap_every_bars = int(section["swap_every_bars"])
+    if "beats_per_bar" in section:
+        config.beats_per_bar = int(section["beats_per_bar"])
     if "seed" in section:
         config.seed = int(section["seed"])
+
+
+def _parse_effect_names(raw_effects: Any) -> tuple[str, ...]:
+    names: list[str]
+    if isinstance(raw_effects, str):
+        names = [entry.strip() for entry in raw_effects.split(",") if entry.strip()]
+    elif isinstance(raw_effects, (list, tuple)):
+        names = []
+        for entry in raw_effects:
+            parsed = str(entry).strip()
+            if parsed:
+                names.append(parsed)
+    else:
+        raise ValueError("style.effect_names must be a string or list of strings.")
+
+    if not names:
+        raise ValueError("style.effect_names cannot be empty.")
+
+    unique_names: list[str] = []
+    for name in names:
+        if name not in unique_names:
+            unique_names.append(name)
+    return tuple(unique_names)

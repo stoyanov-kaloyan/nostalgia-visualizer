@@ -1,6 +1,6 @@
 # Nostalgia Visualizer
 
-Reusable Python **library + CLI** for one-preloaded-song visualizers, tuned to a glitch-heavy black-background style with sporadic colorful bursts.
+Reusable Python **library + CLI** for one-preloaded-song visualizers, tuned to a glitch-heavy black-background style with sporadic colorful bursts and bar-synced effect switching.
 
 ## Setup (uv + venv)
 
@@ -32,6 +32,8 @@ render_song(
     output_path="renders/my-reel.mp4",
     clip_seconds=20,
     theme="crt_breaker",
+    effect_names=("glitch_bands", "chroma_echo", "scan_fall"),
+    swap_every_bars=2,
 )
 ```
 
@@ -50,6 +52,7 @@ render_from_config("visualizer.toml", output_path="renders/custom.mp4", fps=24)
 - `render_with_config(...)`
 - `load_config(...)` / `VisualizerConfig`
 - `available_theme_names()`
+- `available_effect_names()`
 
 ## Visualizer system design
 
@@ -57,11 +60,13 @@ The renderer is intentionally hard-cut and glitchy:
 
 1. **Audio feature layer (`audio.py`)**: extracts energy, onset, beat pulse, and spectral warmth from one song.
 1. **Mood mapping layer (`presets.py`)**: applies a named glitch theme with a black base + neon palette.
+1. **Effect engine (`renderer.py`)**: offers multiple glitch variants (`glitch_bands`, `chroma_echo`, `scan_fall`, `pixel_mosaic`, `tear_lines`).
+1. **Bar scheduler (`renderer.py`)**: rotates through configured effects every N musical bars (beat-tracked, with tempo fallback).
 1. **Frame synthesis layer (`renderer.py`)**:
    - black background foundation
-   - horizontal glitch bands and offset channel splits
+   - effect-specific glitch layers
    - sporadic colorful blocks / sparks triggered by rhythm
-   - scanlines, grain, and strobe flashes
+   - scanlines, channel splits, grain, and strobe flashes
 1. **Pipeline layer (`pipeline.py`)**: analyzes audio, renders frames, then muxes audio + video into a reel-ready MP4.
 
 ## Configuration
@@ -82,6 +87,9 @@ fps = 30
 
 [style]
 theme = "blackout_glitch"
+effect_names = ["glitch_bands", "chroma_echo", "scan_fall", "pixel_mosaic", "tear_lines"]
+swap_every_bars = 2
+beats_per_bar = 4
 seed = 7
 ```
 
@@ -90,13 +98,19 @@ seed = 7
 ## CLI overrides
 
 ```bash
-uv run nostalgia-visualizer --song assets/my-track.wav --theme crt_breaker --clip-seconds 20
+uv run nostalgia-visualizer --song assets/my-track.wav --theme crt_breaker --effects glitch_bands,chroma_echo,scan_fall --swap-every-bars 2 --clip-seconds 20
 ```
 
 List themes:
 
 ```bash
 uv run nostalgia-visualizer --list-themes
+```
+
+List effects:
+
+```bash
+uv run nostalgia-visualizer --list-effects
 ```
 
 Run the standalone reusable example script:

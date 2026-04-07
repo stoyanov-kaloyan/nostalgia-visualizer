@@ -11,4 +11,7 @@ fps = 30
 
 [style]
 theme = "blackout_glitch"
+effect_names = ["glitch_bands", "chroma_echo", "scan_fall", "pixel_mosaic", "tear_lines"]
+swap_every_bars = 2
+beats_per_bar = 4
 seed = 7

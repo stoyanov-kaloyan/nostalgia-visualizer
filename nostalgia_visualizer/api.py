@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 from pathlib import Path
+from typing import Sequence
 
 from .config import VisualizerConfig, load_config
 from .pipeline import run_visualizer
@@ -17,6 +18,9 @@ def render_song(
     sample_rate: int = 44_100,
     clip_seconds: float = 30.0,
     theme: str = "blackout_glitch",
+    effect_names: Sequence[str] = ("glitch_bands", "chroma_echo", "scan_fall"),
+    swap_every_bars: int = 2,
+    beats_per_bar: int = 4,
     seed: int = 7,
 ) -> Path:
     config = VisualizerConfig(
@@ -28,6 +32,9 @@ def render_song(
         sample_rate=sample_rate,
         clip_seconds=clip_seconds,
         theme=theme,
+        effect_names=tuple(effect_names),
+        swap_every_bars=swap_every_bars,
+        beats_per_bar=beats_per_bar,
         seed=seed,
     )
     return run_visualizer(config)
@@ -39,6 +46,9 @@ def render_from_config(
     song_path: str | Path | None = None,
     output_path: str | Path | None = None,
     theme: str | None = None,
+    effect_names: Sequence[str] | None = None,
+    swap_every_bars: int | None = None,
+    beats_per_bar: int | None = None,
     clip_seconds: float | None = None,
     fps: int | None = None,
     width: int | None = None,
@@ -53,6 +63,9 @@ def render_from_config(
         song_path=song_path,
         output_path=output_path,
         theme=theme,
+        effect_names=effect_names,
+        swap_every_bars=swap_every_bars,
+        beats_per_bar=beats_per_bar,
         clip_seconds=clip_seconds,
         fps=fps,
         width=width,
@@ -68,6 +81,9 @@ def render_with_config(
     song_path: str | Path | None = None,
     output_path: str | Path | None = None,
     theme: str | None = None,
+    effect_names: Sequence[str] | None = None,
+    swap_every_bars: int | None = None,
+    beats_per_bar: int | None = None,
     clip_seconds: float | None = None,
     fps: int | None = None,
     width: int | None = None,
@@ -83,6 +99,12 @@ def render_with_config(
         updated.output_path = _to_path(output_path)
     if theme is not None:
         updated.theme = theme
+    if effect_names is not None:
+        updated.effect_names = tuple(effect_names)
+    if swap_every_bars is not None:
+        updated.swap_every_bars = swap_every_bars
+    if beats_per_bar is not None:
+        updated.beats_per_bar = beats_per_bar
     if clip_seconds is not None:
         updated.clip_seconds = clip_seconds
     if fps is not None:

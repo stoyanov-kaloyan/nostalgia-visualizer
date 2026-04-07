@@ -13,10 +13,12 @@ class AudioFeatures:
     sample_rate: int
     duration_seconds: float
     frame_times: np.ndarray
+    tempo_bpm: float
     energy: np.ndarray
     onset: np.ndarray
     warmth: np.ndarray
     beat_pulse: np.ndarray
+    beat_frame_indices: np.ndarray
 
 
 def analyze_audio(
@@ -59,24 +61,32 @@ def analyze_audio(
     onset = _smooth(_normalize(_to_frame_curve(onset_strength, analysis_times, frame_times)), 5)
     warmth = 1.0 - _smooth(_normalize(_to_frame_curve(centroid, analysis_times, frame_times)), 9)
 
-    _, beat_frames = librosa.beat.beat_track(
+    tempo_value, beat_frames = librosa.beat.beat_track(
         y=waveform,
         sr=active_sample_rate,
         hop_length=hop_length,
         trim=False,
     )
+    tempo_bpm = _coerce_tempo(tempo_value)
     beat_times = librosa.frames_to_time(beat_frames, sr=active_sample_rate, hop_length=hop_length)
     beat_pulse = _build_beat_pulse(frame_count=frame_count, beat_times=beat_times, fps=fps)
+    beat_frame_indices = np.round(beat_times * fps).astype(np.int32, copy=False)
+    beat_frame_indices = beat_frame_indices[
+        (beat_frame_indices >= 0) & (beat_frame_indices < frame_count)
+    ]
+    beat_frame_indices = np.unique(beat_frame_indices)
 
     return AudioFeatures(
         waveform=waveform.astype(np.float32, copy=False),
         sample_rate=active_sample_rate,
         duration_seconds=duration_seconds,
         frame_times=frame_times,
+        tempo_bpm=tempo_bpm,
         energy=energy,
         onset=onset,
         warmth=warmth,
         beat_pulse=beat_pulse,
+        beat_frame_indices=beat_frame_indices,
     )
 
 
@@ -130,3 +140,10 @@ def _build_beat_pulse(frame_count: int, beat_times: np.ndarray, fps: int) -> np.
         pulse[start:end] = np.maximum(pulse[start:end], weights[weight_start:weight_end])
 
     return pulse
+
+
+def _coerce_tempo(raw_tempo: float | np.ndarray) -> float:
+    tempo_array = np.asarray(raw_tempo, dtype=np.float32).reshape(-1)
+    if tempo_array.size == 0:
+        return 0.0
+    return float(max(0.0, tempo_array[0]))

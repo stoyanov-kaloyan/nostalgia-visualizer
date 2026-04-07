@@ -9,6 +9,8 @@ def main() -> None:
         output_path=Path("renders/library-example.mp4"),
         clip_seconds=12,
         theme="crt_breaker",
+        effect_names=("glitch_bands", "pixel_mosaic", "tear_lines"),
+        swap_every_bars=2,
     )
     print(f"Library render complete: {output}")
 
