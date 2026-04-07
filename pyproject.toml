@@ -1,7 +1,7 @@
 [project]
 name = "nostalgia-visualizer"
 version = "0.1.0"
-description = "Offline music visualizer for nostalgic indie/electronic Instagram reel backgrounds."
+description = "Reusable Python library and CLI for glitch-style single-song music visualizers."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -12,3 +12,10 @@ dependencies = [
     "pillow>=12.2.0",
     "tqdm>=4.67.3",
 ]
+
+[project.scripts]
+nostalgia-visualizer = "nostalgia_visualizer.cli:main"
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"

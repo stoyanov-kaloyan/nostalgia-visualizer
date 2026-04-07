@@ -4,7 +4,7 @@ sample_rate = 44100
 clip_seconds = 30
 
 [video]
-output_path = "renders/nostalgia-reel.mp4"
+output_path = "renders/output.mp4"
 width = 1280
 height = 720
 fps = 30

@@ -1,6 +1,6 @@
 # Nostalgia Visualizer
 
-Offline Python visualizer for **one preloaded song at a time**, now tuned to a **glitch-heavy black-background** look with sporadic colorful bursts.
+Reusable Python **library + CLI** for one-preloaded-song visualizers, tuned to a glitch-heavy black-background style with sporadic colorful bursts.
 
 ## Setup (uv + venv)
 
@@ -9,17 +9,47 @@ uv sync
 source .venv/bin/activate
 ```
 
-## Quick start
+## CLI quick start
 
 1. Put a song file at `assets/song.mp3` (or set another path in `visualizer.toml`).
 1. Render:
 
 ```bash
-uv run python main.py
+uv run nostalgia-visualizer
 ```
 
-Output defaults to `renders/nostalgia-reel.mp4` in **16:9 (1280x720)**.
+Output defaults to `renders/output.mp4` in **16:9 (1280x720)**.
 The renderer shows a live frame progress bar while encoding.
+`main.py` is kept as a thin wrapper around the library CLI.
+
+## Library usage
+
+```python
+from nostalgia_visualizer import render_song
+
+render_song(
+    song_path="assets/song.mp3",
+    output_path="renders/my-reel.mp4",
+    clip_seconds=20,
+    theme="crt_breaker",
+)
+```
+
+You can also load from TOML and override on call:
+
+```python
+from nostalgia_visualizer import render_from_config
+
+render_from_config("visualizer.toml", output_path="renders/custom.mp4", fps=24)
+```
+
+## Public API
+
+- `render_song(...)`
+- `render_from_config(...)`
+- `render_with_config(...)`
+- `load_config(...)` / `VisualizerConfig`
+- `available_theme_names()`
 
 ## Visualizer system design
 
@@ -45,7 +75,7 @@ sample_rate = 44100
 clip_seconds = 30
 
 [video]
-output_path = "renders/nostalgia-reel.mp4"
+output_path = "renders/output.mp4"
 width = 1280
 height = 720
 fps = 30
@@ -60,11 +90,17 @@ seed = 7
 ## CLI overrides
 
 ```bash
-uv run python main.py --song assets/my-track.wav --theme crt_breaker --clip-seconds 20
+uv run nostalgia-visualizer --song assets/my-track.wav --theme crt_breaker --clip-seconds 20
 ```
 
 List themes:
 
 ```bash
-uv run python main.py --list-themes
+uv run nostalgia-visualizer --list-themes
+```
+
+Run the standalone reusable example script:
+
+```bash
+uv run python examples/library_usage.py
 ```

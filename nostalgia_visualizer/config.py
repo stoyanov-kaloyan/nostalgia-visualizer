@@ -11,7 +11,7 @@ DEFAULT_CONFIG_PATH = Path("visualizer.toml")
 @dataclass(slots=True)
 class VisualizerConfig:
     song_path: Path = Path("assets/song.mp3")
-    output_path: Path = Path("renders/nostalgia-reel.mp4")
+    output_path: Path = Path("renders/output.mp4")
     width: int = 1280
     height: int = 720
     fps: int = 30
