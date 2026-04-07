@@ -5,6 +5,8 @@ from pathlib import Path
 from typing import Sequence
 
 from .config import VisualizerConfig, load_config
+from .live import list_input_devices as _list_input_devices
+from .live import run_live_visualizer as _run_live_visualizer
 from .pipeline import run_visualizer
 
 
@@ -40,6 +42,48 @@ def render_song(
     return run_visualizer(config)
 
 
+def launch_live_visualizer(
+    config_path: str | Path | None = None,
+    *,
+    song_path: str | Path | None = None,
+    output_path: str | Path | None = None,
+    theme: str | None = None,
+    effect_names: Sequence[str] | None = None,
+    swap_every_bars: int | None = None,
+    beats_per_bar: int | None = None,
+    clip_seconds: float | None = None,
+    fps: int | None = None,
+    width: int | None = None,
+    height: int | None = None,
+    sample_rate: int | None = None,
+    seed: int | None = None,
+    input_device: str | int | None = None,
+    fullscreen: bool = False,
+) -> None:
+    resolved_config_path = None if config_path is None else _to_path(config_path)
+    config = load_config(resolved_config_path)
+    updated = _with_overrides(
+        config,
+        song_path=song_path,
+        output_path=output_path,
+        theme=theme,
+        effect_names=effect_names,
+        swap_every_bars=swap_every_bars,
+        beats_per_bar=beats_per_bar,
+        clip_seconds=clip_seconds,
+        fps=fps,
+        width=width,
+        height=height,
+        sample_rate=sample_rate,
+        seed=seed,
+    )
+    _run_live_visualizer(updated, input_device=input_device, fullscreen=fullscreen)
+
+
+def list_live_input_devices() -> list[str]:
+    return _list_input_devices()
+
+
 def render_from_config(
     config_path: str | Path | None = None,
     *,
@@ -58,7 +102,7 @@ def render_from_config(
 ) -> Path:
     resolved_config_path = None if config_path is None else _to_path(config_path)
     config = load_config(resolved_config_path)
-    return render_with_config(
+    updated = _with_overrides(
         config,
         song_path=song_path,
         output_path=output_path,
@@ -73,6 +117,7 @@ def render_from_config(
         sample_rate=sample_rate,
         seed=seed,
     )
+    return run_visualizer(updated)
 
 
 def render_with_config(
@@ -91,6 +136,46 @@ def render_with_config(
     sample_rate: int | None = None,
     seed: int | None = None,
 ) -> Path:
+    updated = _with_overrides(
+        config,
+        song_path=song_path,
+        output_path=output_path,
+        theme=theme,
+        effect_names=effect_names,
+        swap_every_bars=swap_every_bars,
+        beats_per_bar=beats_per_bar,
+        clip_seconds=clip_seconds,
+        fps=fps,
+        width=width,
+        height=height,
+        sample_rate=sample_rate,
+        seed=seed,
+    )
+    return run_visualizer(updated)
+
+
+def _to_path(value: str | Path) -> Path:
+    if isinstance(value, Path):
+        return value
+    return Path(value)
+
+
+def _with_overrides(
+    config: VisualizerConfig,
+    *,
+    song_path: str | Path | None = None,
+    output_path: str | Path | None = None,
+    theme: str | None = None,
+    effect_names: Sequence[str] | None = None,
+    swap_every_bars: int | None = None,
+    beats_per_bar: int | None = None,
+    clip_seconds: float | None = None,
+    fps: int | None = None,
+    width: int | None = None,
+    height: int | None = None,
+    sample_rate: int | None = None,
+    seed: int | None = None,
+) -> VisualizerConfig:
     updated = replace(config)
 
     if song_path is not None:
@@ -118,10 +203,4 @@ def render_with_config(
     if seed is not None:
         updated.seed = seed
 
-    return run_visualizer(updated)
-
-
-def _to_path(value: str | Path) -> Path:
-    if isinstance(value, Path):
-        return value
-    return Path(value)
+    return updated

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import subprocess
+from typing import Sequence
 
 import imageio.v2 as imageio
 import imageio_ffmpeg
@@ -25,6 +26,27 @@ def available_effect_names() -> list[str]:
     return list(_EFFECT_NAMES)
 
 
+def normalize_effect_names(effect_names: Sequence[str]) -> tuple[str, ...]:
+    if not effect_names:
+        raise ValueError("effect_names cannot be empty.")
+
+    available = set(_EFFECT_NAMES)
+    unique: list[str] = []
+    for name in effect_names:
+        normalized = str(name).strip()
+        if not normalized:
+            continue
+        if normalized not in available:
+            names = ", ".join(_EFFECT_NAMES)
+            raise ValueError(f"Unknown effect '{normalized}'. Choose one of: {names}")
+        if normalized not in unique:
+            unique.append(normalized)
+
+    if not unique:
+        raise ValueError("effect_names cannot be empty.")
+    return tuple(unique)
+
+
 def render_visualizer_video(
     config: VisualizerConfig,
     theme: Theme,
@@ -34,7 +56,7 @@ def render_visualizer_video(
     output_path.parent.mkdir(parents=True, exist_ok=True)
     temp_video = output_path.with_name(f"{output_path.stem}.video-only.mp4")
 
-    selected_effects = _normalize_effect_names(config.effect_names)
+    selected_effects = normalize_effect_names(config.effect_names)
     effect_schedule = _build_effect_schedule(
         config=config,
         features=features,
@@ -99,9 +121,22 @@ class FrameRenderer:
         features: AudioFeatures,
         effect_name: str,
     ) -> np.ndarray:
-        energy = float(features.energy[frame_index])
-        onset = float(features.onset[frame_index])
-        beat = float(features.beat_pulse[frame_index])
+        return self.render_frame_from_values(
+            frame_index=frame_index,
+            effect_name=effect_name,
+            energy=float(features.energy[frame_index]),
+            onset=float(features.onset[frame_index]),
+            beat=float(features.beat_pulse[frame_index]),
+        )
+
+    def render_frame_from_values(
+        self,
+        frame_index: int,
+        effect_name: str,
+        energy: float,
+        onset: float,
+        beat: float,
+    ) -> np.ndarray:
         rng = np.random.default_rng(self.master_seed + frame_index * 104_729 + 17)
 
         frame = self.base_background.copy()
@@ -453,27 +488,6 @@ class FrameRenderer:
         else:
             flashed += flash_overlay
         return np.clip(flashed, 0, 255).astype(np.uint8)
-
-
-def _normalize_effect_names(effect_names: tuple[str, ...]) -> tuple[str, ...]:
-    if not effect_names:
-        raise ValueError("effect_names cannot be empty.")
-
-    available = set(_EFFECT_NAMES)
-    unique: list[str] = []
-    for name in effect_names:
-        normalized = name.strip()
-        if not normalized:
-            continue
-        if normalized not in available:
-            names = ", ".join(_EFFECT_NAMES)
-            raise ValueError(f"Unknown effect '{normalized}'. Choose one of: {names}")
-        if normalized not in unique:
-            unique.append(normalized)
-
-    if not unique:
-        raise ValueError("effect_names cannot be empty.")
-    return tuple(unique)
 
 
 def _build_effect_schedule(

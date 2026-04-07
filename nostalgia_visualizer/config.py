@@ -21,6 +21,7 @@ class VisualizerConfig:
     effect_names: tuple[str, ...] = ("glitch_bands", "chroma_echo", "scan_fall")
     swap_every_bars: int = 2
     beats_per_bar: int = 4
+    live_input_device: str | int | None = None
     seed: int = 7
 
 
@@ -39,6 +40,7 @@ def load_config(path: Path | None = None) -> VisualizerConfig:
     _apply_audio_section(config, raw_config.get("audio", {}))
     _apply_video_section(config, raw_config.get("video", {}))
     _apply_style_section(config, raw_config.get("style", {}))
+    _apply_live_section(config, raw_config.get("live", {}))
 
     base_dir = config_path.parent
     if not config.song_path.is_absolute():
@@ -111,3 +113,21 @@ def _parse_effect_names(raw_effects: Any) -> tuple[str, ...]:
         if name not in unique_names:
             unique_names.append(name)
     return tuple(unique_names)
+
+
+def _apply_live_section(config: VisualizerConfig, section: dict[str, Any]) -> None:
+    if not section:
+        return
+    if "input_device" in section:
+        raw_device = section["input_device"]
+        if raw_device is None:
+            config.live_input_device = None
+            return
+        if isinstance(raw_device, int):
+            config.live_input_device = raw_device
+            return
+        parsed = str(raw_device).strip()
+        if parsed == "":
+            config.live_input_device = None
+            return
+        config.live_input_device = parsed

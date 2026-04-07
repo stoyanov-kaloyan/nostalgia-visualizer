@@ -15,3 +15,8 @@ effect_names = ["glitch_bands", "chroma_echo", "scan_fall", "pixel_mosaic", "tea
 swap_every_bars = 2
 beats_per_bar = 4
 seed = 7
+
+[live]
+# Use `uv run nostalgia-visualizer --list-input-devices` to discover available sources.
+# For desktop/system audio on Linux, choose your PulseAudio monitor input device.
+input_device = ""
